@@ -43,9 +43,10 @@ interface NewsData {
   success: {
     sources: Array<NewsSource>;
   };
+  close?: () => void;
 }
 
-const Filter = ({ success }: NewsData) => {
+const Filter = ({ success, close }: NewsData) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
   const [countryValue, setCountryValue] = useState("");
@@ -68,6 +69,12 @@ const Filter = ({ success }: NewsData) => {
     }
   }, [currentCategory, query]);
 
+  const trigger = () => {
+    if (close) {
+      close();
+    }
+  };
+
   const updateParams = async (key: string, category: string) => {
     const params = new URLSearchParams(searchParams);
 
@@ -76,6 +83,7 @@ const Filter = ({ success }: NewsData) => {
     params.set(key, category);
     setOpen(false);
     replace(`${pathname}?${params.toString()}`);
+    trigger();
   };
 
   const update = async (value: string) => {
@@ -85,6 +93,7 @@ const Filter = ({ success }: NewsData) => {
     params.set("country", value);
     setOpen(false);
     replace(`${pathname}?${params.toString()}`);
+    trigger();
   };
 
   const clearFilter = async () => {
@@ -96,6 +105,7 @@ const Filter = ({ success }: NewsData) => {
     params.delete("query");
 
     replace(`${pathname}?${params.toString()}`);
+    trigger();
   };
 
   const handleDateRangeChange = (val: any) => {
@@ -106,6 +116,7 @@ const Filter = ({ success }: NewsData) => {
     params.set("to", format(val.to, "yyyy-MM-dd"));
     setOpen(false);
     replace(`${pathname}?${params.toString()}`);
+    trigger();
   };
 
   const memoisedCountries = useMemo(() => {

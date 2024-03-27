@@ -14,16 +14,34 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import React, { useEffect, useRef, useState } from "react";
+import React, { lazy, useEffect, useRef, useState } from "react";
 import { Squash as Hamburger } from "hamburger-react";
 import { useClickOutside } from "react-click-outside-hook";
+import Filter from "@/components/Filter";
 
-export default function ClientTopHeader() {
+interface NewsSource {
+  category: string;
+  country: string;
+  description: string;
+  id: string;
+  language: string;
+  name: string;
+  url: string;
+}
+
+interface NewsData {
+  success: {
+    sources: Array<NewsSource>;
+  };
+}
+
+export default function ClientTopHeader({ success }: NewsData) {
   const searchParams = useSearchParams();
   const currentCategory = searchParams.get("category") || "general";
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [ref, hasClickedOutside] = useClickOutside();
+  const ClientFilter = lazy(() => import("@/components/Filter"));
 
   const toggleMenu = () => {
     setOpen(!open);
@@ -64,66 +82,64 @@ export default function ClientTopHeader() {
   ListItem.displayName = "ListItem";
 
   return (
-    <div>
-      <div className="sticky top-0 h-16  bg-white shadow-sm flex items-center justify-between  !z-50">
-        <div className=" flex items-center justify-between  container">
-          <div className=" flex items-center">
-            <div className="flex items-center gap-x-2">
-              <div className=" bg-black px-2 h-7 flex items-center justify-center text-white ">
-                N
-              </div>
-              <h1 className=" font-medium hidden sm:block">NewsHub</h1>
+    <div className="sticky top-0 h-16  bg-white shadow-sm flex items-center justify-between  !z-50">
+      <div className=" flex items-center justify-between  container">
+        <div className=" flex items-center">
+          <div className="flex items-center gap-x-2">
+            <div className=" bg-black px-2 h-7 flex items-center justify-center text-white ">
+              N
             </div>
-            <div className="lg:flex hidden items-center ml-8 uppercase text-xs">
-              {categories.map((category, index) => (
-                <Link
-                  href={`?${new URLSearchParams({ category }).toString()}`}
-                  key={category}
-                  className={cn(
-                    `px-2 py-1 text-xs font-medium text-gray-500 hover:text-gray-900`,
-                    currentCategory === category &&
-                      "underline decoration-double underline-offset-8  text-blue-600"
-                  )}
-                >
-                  {category}
-                </Link>
-              ))}
-            </div>
-            <div className="lg:hidden sm:block ml-5 hidden ">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="grid w-[400px]  grid-cols-2 relative uppercase !text-xs  ">
-                        {categories.map((category) => (
-                          <ListItem
-                            key={category}
-                            title={category}
-                            href={`?${new URLSearchParams({
-                              category,
-                            }).toString()}`}
-                          ></ListItem>
-                        ))}
-                      </ul>
-                    </NavigationMenuContent>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </div>
+            <h1 className=" font-medium hidden sm:block">NewsHub</h1>
           </div>
-          <div className=" sm:w-[16rem] w-[13rem] flex items-center">
-            <Search placeholder="Search" />
-            <div className=" sm:hidden block  z-[90]">
-              <Hamburger toggled={open} size={20} toggle={toggleMenu} />
-            </div>
+          <div className="lg:flex hidden items-center ml-8 uppercase text-xs">
+            {categories.map((category, index) => (
+              <Link
+                href={`?${new URLSearchParams({ category }).toString()}`}
+                key={category}
+                className={cn(
+                  `px-2 py-1 text-xs font-medium text-gray-500 hover:text-gray-900`,
+                  currentCategory === category &&
+                    "underline decoration-double underline-offset-8  text-blue-600"
+                )}
+              >
+                {category}
+              </Link>
+            ))}
+          </div>
+          <div className="lg:hidden sm:block ml-5 hidden ">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px]  grid-cols-2 relative uppercase !text-xs  ">
+                      {categories.map((category) => (
+                        <ListItem
+                          key={category}
+                          title={category}
+                          href={`?${new URLSearchParams({
+                            category,
+                          }).toString()}`}
+                        ></ListItem>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+        </div>
+        <div className=" sm:w-[16rem] w-[13rem] flex items-center">
+          <Search placeholder="Search" />
+          <div className=" sm:hidden block  z-[90]">
+            <Hamburger toggled={open} size={20} toggle={toggleMenu} />
           </div>
         </div>
       </div>
       {open && (
         <div
           ref={ref}
-          className="sticky w-full sm:hidden overflow-hidden block  left-0 shadow-4xl right-0 top-[4rem] p-5 pt-3 bg-white shadow border-b border-b-white/20"
+          className="absolute w-full sm:hidden overflow-hidden block  left-0 shadow-4xl right-0 top-[4rem] p-5 pt-3 h-[80dvh] bg-white shadow border-b border-b-white/20"
         >
           <ul className="grid gap-2 grid-cols-2 w-full">
             {categories.map((category) => (
@@ -142,6 +158,7 @@ export default function ClientTopHeader() {
               </li>
             ))}
           </ul>
+          <Filter success={success} close={toggleMenu} />
         </div>
       )}
     </div>

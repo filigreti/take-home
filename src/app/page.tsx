@@ -64,11 +64,11 @@ export default async function Home({
 
   return (
     <main className=" ">
-      <TopHeader />
+      <TopHeader success={sourceData.success} />
       <div className="container mt-5">
         <div className="grid grid-cols-11 gap-4">
           {sourceData.status !== "error" && (
-            <div className="lg:col-span-3 sm:col-span-4 col-span-4 hidden sm:block  sm:sticky top-[5rem] border max-h-[50dvh] h-full overflow-auto">
+            <div className="lg:col-span-3 sm:col-span-4 col-span-4 hidden sm:block  sm:sticky lg:sticky top-[5rem] border max-h-[50dvh] h-full overflow-auto">
               <Suspense fallback={<p>Loading Filter...</p>}>
                 <ClientFilter success={sourceData.success} />
               </Suspense>
